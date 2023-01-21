@@ -1,0 +1,6 @@
+VERBOSE = False
+DIST_THRESHOLD = 2
+
+NN = 3
+NOISE = 0.05
+COUNT = 15
