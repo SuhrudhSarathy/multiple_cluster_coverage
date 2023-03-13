@@ -186,10 +186,10 @@ def tsp(points, circles, PRINT=False):
         routing_enums_pb2.FirstSolutionStrategy.GLOBAL_CHEAPEST_ARC)
 
     solution = routing.SolveWithParameters(search_parameters)
-    if solution:
-        print(f"Cost of Traversal: {solution.ObjectiveValue()/100}")
-    if solution and PRINT:
-        print_solution(manager, routing, solution)
+    # if solution:
+    #     print(f"Cost of Traversal: {solution.ObjectiveValue()/100}")
+    # if solution and PRINT:
+    #     print_solution(manager, routing, solution)
 
     routes = get_routes(solution, routing, manager)
 
