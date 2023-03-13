@@ -18,7 +18,7 @@ setup(
         'ortools',
         'scikit-learn',
         'tqdm',
-        'pyyaml'
+        'pyyaml',
         'prettytable'
     ],
     include_package_data=True,
