@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 from ortools.constraint_solver import pywrapcp
 from ortools.constraint_solver import routing_enums_pb2
 
+# import shapely to perform collision aware selection
+from shapely.geometry import LineString, Point
+
 NOISE = 0.01
 COUNT = 25
 
@@ -90,7 +93,17 @@ def get_locations_in_circle(circle, X):
 
 
 # ALL TSP Functions
-def get_distance_matrix(points):
+def get_distance_matrix(points, circles):
+
+    def collision(v1, v2, circles):
+
+        line = LineString(v1, v2)
+        for circle in circles:
+            if circle.intersects(line):
+                return True
+            
+        else:
+            return False
 
     def distance(p1, p2):
         # This should return an integer. Hence multiply this by 100 and then round it off
@@ -102,7 +115,10 @@ def get_distance_matrix(points):
         distances.append([])
         for vertex2 in points:
             # Check for collision and then add them to the list
-            distances[i].append(distance(vertex, vertex2))
+            is_collision = collision(vertex, vertex2, circles)
+
+            if not is_collision:
+                distances[i].append(distance(vertex, vertex2))
     
     data["distance_matrix"] = distances
 
@@ -142,11 +158,14 @@ def get_routes(solution, routing, manager):
   return routes
 
 
-def tsp(points, PRINT=False):
+def tsp(points, circles, radius, PRINT=False):
+
+
+    circle_objects = [Point(c[0][0], c[0][1]).buffer(c[1]) for c in circle]
 
 
     # Full TSP functions now
-    data = get_distance_matrix(points)
+    data = get_distance_matrix(points, circle_objects)
     manager = pywrapcp.RoutingIndexManager(len(data['distance_matrix']), data['num_vehicles'], data['depot'])
     routing = pywrapcp.RoutingModel(manager)
 
@@ -208,7 +227,7 @@ def test(circles):
     for circle in circles:
         get_locations_in_circle(circle, p1)
     start = time()
-    route, cost = tsp(p1, False)
+    route, cost = tsp(p1, circles=circles, PRINT=False)
     end = time() - start
 
     return end, cost
