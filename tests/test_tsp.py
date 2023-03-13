@@ -97,7 +97,7 @@ def get_distance_matrix(points, circles):
 
     def collision(v1, v2, circles):
 
-        line = LineString(v1, v2)
+        line = LineString([v1, v2])
         for circle in circles:
             if circle.intersects(line):
                 return True
@@ -119,6 +119,8 @@ def get_distance_matrix(points, circles):
 
             if not is_collision:
                 distances[i].append(distance(vertex, vertex2))
+            else:
+                distances[i].append(10000)
     
     data["distance_matrix"] = distances
 
@@ -158,10 +160,10 @@ def get_routes(solution, routing, manager):
   return routes
 
 
-def tsp(points, circles, radius, PRINT=False):
+def tsp(points, circles, PRINT=False):
 
 
-    circle_objects = [Point(c[0][0], c[0][1]).buffer(c[1]) for c in circle]
+    circle_objects = [Point(c[0][0], c[0][1]).buffer(c[1]*0.85) for c in circles]
 
 
     # Full TSP functions now
@@ -184,10 +186,10 @@ def tsp(points, circles, radius, PRINT=False):
         routing_enums_pb2.FirstSolutionStrategy.GLOBAL_CHEAPEST_ARC)
 
     solution = routing.SolveWithParameters(search_parameters)
-    # if solution:
-    #     print(f"Cost of Traversal: {solution.ObjectiveValue()/100}")
-    # if solution and PRINT:
-    #     print_solution(manager, routing, solution)
+    if solution:
+        print(f"Cost of Traversal: {solution.ObjectiveValue()/100}")
+    if solution and PRINT:
+        print_solution(manager, routing, solution)
 
     routes = get_routes(solution, routing, manager)
 
@@ -240,7 +242,7 @@ if __name__ == "__main__":
     for circle in circles:
         get_locations_in_circle(circle, p1)
     start = time()
-    route, cost = tsp(p1, False)
+    route, cost = tsp(p1, circles, False)
     end = time() - start
 
     print(end, cost)
